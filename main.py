@@ -1,3 +1,4 @@
+from numpy import number
 import telegram 
 from telegram.ext import (
     Updater, 
@@ -16,8 +17,6 @@ from telegram import (
 
 import logging
 
-from support_functions import *
-
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
@@ -32,12 +31,9 @@ TOKEN = '5111911547:AAG7bWaeQFOJoYJI6rlNpjK_LzgaGo62r8k'
 
 
 class Character:
-
-    number = 0
     def __init__(self, name: str, initiative: int): 
         self.name = name
         self.init = initiative
-        Character.number += 1
 
 
 def sort_initiatives(initiative_list: list):
@@ -98,7 +94,7 @@ def process_initiatives(update: Update, context: CallbackContext):
         character_name, character_initiative = character.split()
         character_item = Character(character_name, int(character_initiative))
         user[LIST_OF_CHARACTERS].append(character_item)
-        logger.info('character processed')
+        logger.info(f'character {character_item.name} processed')
 
     initiatives = user[LIST_OF_CHARACTERS]
     nice_initiatives = sort_initiatives(initiatives)
@@ -132,8 +128,9 @@ def process_initiatives(update: Update, context: CallbackContext):
 def run_fight(update: Update, context: CallbackContext):
     user = context.user_data
     counter = user[COUNTER]
-    current_round = counter // Character.number + 1
-    current_character_number = counter % Character.number
+    number_of_characters = len(user[LIST_OF_CHARACTERS])
+    current_round = counter // number_of_characters + 1
+    current_character_number = counter % number_of_characters
     current_character = user[SORTED_LIST][current_character_number]
 
     text = f'''Сейчас ходит {current_character.name} ({current_character.init})!
@@ -147,13 +144,16 @@ def run_fight(update: Update, context: CallbackContext):
         one_time_keyboard=True 
     )
 
-    context.bot.send_message(
+    update.callback_query.edit_message_text(
         text=text, 
         reply_markup=keyboard, 
-        chat_id=update.effective_chat.id
+        # chat_id=update.effective_chat.id
     )
 
     user[COUNTER] += 1
+
+    logger.info(f'''current_round = {current_round}, current_character = {current_character.name}, characters = {number_of_characters}, 
+    user_id = {update.effective_chat.id}''')
 
     return RUN_FIGHT 
 
@@ -165,6 +165,8 @@ def end(update: Update, context: CallbackContext):
         text=text, 
         chat_id=update.effective_chat.id
     )
+
+    logger.info('bot finished')
 
     return ConversationHandler.END
 
