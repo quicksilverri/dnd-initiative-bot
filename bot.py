@@ -1,4 +1,3 @@
-from numpy import number
 import telegram 
 from telegram.ext import (
     Updater, 
@@ -16,6 +15,9 @@ from telegram import (
 )
 
 import logging
+import os
+
+PORT = int(os.environ.get('PORT', 5000))
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -28,6 +30,7 @@ ADD_CHARACTERS, PROCESS_INITIATIVES, RUN_FIGHT = range(3)
 LIST_OF_CHARACTERS, COUNTER, SORTED_LIST = range(10, 13)
 
 TOKEN = '5111911547:AAG7bWaeQFOJoYJI6rlNpjK_LzgaGo62r8k'
+HEROKU = 'https://initiativebot.herokuapp.com/'
 
 
 class Character:
@@ -194,7 +197,12 @@ def main():
 
     dp.add_handler(conv_handler)
 
-    updater.start_polling()
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=TOKEN)
+
+    updater.bot.setWebhook(HEROKU + TOKEN)
+    
     updater.idle()
 
 if __name__ == '__main__':
