@@ -30,7 +30,7 @@ ADD_CHARACTERS, PROCESS_INITIATIVES, RUN_FIGHT = range(3)
 LIST_OF_CHARACTERS, COUNTER, SORTED_LIST = range(10, 13)
 
 TOKEN = '5111911547:AAG7bWaeQFOJoYJI6rlNpjK_LzgaGo62r8k'
-HEROKU = 'https://initiativebot.herokuapp.com/'
+HEROKU = 'https://dnd-initiative-bot.herokuapp.com/'
 
 
 class Character:
